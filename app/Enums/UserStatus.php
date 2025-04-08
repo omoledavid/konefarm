@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum Status: int
+enum UserStatus: int
 {
     const INACTIVE = 0;
     const ACTIVE = 1;

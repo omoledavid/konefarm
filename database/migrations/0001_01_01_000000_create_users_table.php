@@ -19,6 +19,8 @@ return new class extends Migration
 
             // Password + security
             $table->string('password');
+            $table->string('ver_code')->nullable();
+            $table->tinyInteger('status')->default(0);
             $table->rememberToken();
 
             // Roles & Permissions
@@ -41,6 +43,8 @@ return new class extends Migration
             $table->string('profile_photo')->nullable();      // profile picture URL
             $table->string('farm_name')->nullable();          // optional seller alias/farm name
 
+            $table->decimal('delivery_fee', 10, 2)->nullable();
+
             // For ratings
             $table->float('avg_delivery_rating')->default(0);
             $table->float('avg_quality_rating')->default(0);
@@ -53,6 +57,7 @@ return new class extends Migration
             $table->string('email')->primary();
             $table->string('token');
             $table->timestamp('created_at')->nullable();
+            $table->timestamp('reset_code_expires_at')->nullable();
         });
 
         Schema::create('sessions', function (Blueprint $table) {

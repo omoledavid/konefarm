@@ -1,6 +1,14 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\BuyerController;
+use App\Http\Controllers\BuyOrderController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\GeneralController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\SellersProductController;
+use App\Http\Controllers\UserAddressController;
+use App\Http\Controllers\UserProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,7 +22,10 @@ Route::get('test', function (Request $request) {
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/verify-email', [AuthController::class, 'verifyEmail']);
+    Route::post('/resend-verification-code', [AuthController::class, 'resendVerificationCode']);
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+    Route::post('/verify-code', [AuthController::class, 'verifyCode']);
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
@@ -22,3 +33,35 @@ Route::prefix('auth')->group(function () {
         Route::get('/user', [AuthController::class, 'me']);
     });
 });
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::prefix('sellers')->group(function () {
+        Route::apiResource('product', SellersProductController::class);
+    });
+
+    //User
+    Route::prefix('users')->group(function () {
+        Route::controller(UserProfileController::class)->group(function () {
+            Route::get('profile', 'getProfile')->name('profile');
+            Route::post('profile', 'updateProfile')->name('profile.update');
+            Route::get('toggle', 'toggleUser')->name('user.toggle');
+        });
+    });
+
+    //Buyers
+    Route::prefix('buyers')->group(function () {
+        Route::get('clear-cart', [CartController::class, 'clearCart']);
+        Route::apiResource('cart', CartController::class);
+        Route::apiResource('address', UserAddressController::class);
+        Route::controller(OrderController::class)->group(function () {
+            Route::post('checkout', 'checkout')->name('checkout');
+        });
+        Route::get('orders', [BuyerController::class, 'getOrders'])->name('seller.orders');
+    });
+});
+Route::controller(GeneralController::class)->group(function () {
+    Route::prefix('generals')->group(function () {
+        Route::get('product-categories', 'productCategories');
+        Route::get('products', 'allProducts');
+    });
+});
+Route::get('order/verify/{reference}', [OrderController::class, 'verify']);

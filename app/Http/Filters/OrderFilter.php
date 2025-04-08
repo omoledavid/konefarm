@@ -2,7 +2,7 @@
 
 namespace App\Http\Filters;
 
-class UserFilter extends QueryFilter
+class OrderFilter extends QueryFilter
 {
     public function include($value)
     {
@@ -10,5 +10,9 @@ class UserFilter extends QueryFilter
         $includes = is_array($value) ? $value : explode(',', $value);
 
         return $this->builder->with($includes);
+    }
+    public function status($value)
+    {
+        return $this->builder->where('status', $value);
     }
 }

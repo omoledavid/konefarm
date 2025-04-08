@@ -36,6 +36,7 @@ class UserFactory extends Factory
             'state' => $this->faker->state,
             'city' => $this->faker->city,
             'country' => 'Nigeria',
+            'delivery_fee' => 2500,
             'bio' => $isSeller ? $this->faker->sentence(10) : null,
             'profile_photo' => $this->faker->imageUrl(200, 200, 'people', true),
             'farm_name' => $isSeller ? $this->faker->company . ' Farms' : null,

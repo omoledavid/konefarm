@@ -1,5 +1,6 @@
 <?php
 
+use App\Lib\FileManager;
 use App\Models\GeneralSetting;
 use App\Models\MailTemplate;
 use Illuminate\Support\Facades\Cache;
@@ -45,11 +46,12 @@ function notify($user, $templateName, $shortCodes = [], $sendVia = null, $create
         ];
 
         // Replace placeholders in content
-        $content = $template->content;
+        $content = $template->body;
 
         foreach ($shortCodes as $key => $value) {
             $content = str_replace('{{' .$key. '}}', $value, $content);
         }
+
 
 
         // Replace placeholders in global template
@@ -58,7 +60,6 @@ function notify($user, $templateName, $shortCodes = [], $sendVia = null, $create
         // Final email body
         $finalEmailBody = str_replace('{{message}}', $content, $globalTemplate);
         $res = sendMailTrap($user, $template->subject, $finalEmailBody);
-        dd($res);
 
 
     } catch (\Exception $e) {
@@ -92,4 +93,51 @@ function sendMailTrap($user, $subject, $finalMessage)
     } catch (\Exception $e) {
         return response()->json(['error' => $e->getMessage()], 500);
     }
+}
+function verificationCode($length)
+{
+    if ($length == 0) {
+        return 0;
+    }
+
+    $min = pow(10, $length - 1);
+    $max = (int)($min - 1) . '9';
+    return random_int($min, $max);
+}
+function fileManager()
+{
+    return new FileManager();
+}
+
+function getFilePath($key)
+{
+    return fileManager()->$key()->path;
+}
+function fileUploader($file, $location, $size = null, $old = null, $thumb = null, $filename = null)
+{
+    $fileManager = new FileManager($file);
+    $fileManager->path = $location;
+    $fileManager->size = $size;
+    $fileManager->old = $old;
+    $fileManager->thumb = $thumb;
+    $fileManager->filename = $filename;
+    $fileManager->upload();
+    return $fileManager->filename;
+}
+function rssPaginate($paginated)
+{
+    return [
+        'meta' => [
+            'current_page' => $paginated->currentPage(),
+            'last_page'    => $paginated->lastPage(),
+            'per_page'     => $paginated->perPage(),
+            'total'        => $paginated->total(),
+        ],
+        'links' => [
+            'first' => $paginated->url(1),
+            'last'  => $paginated->url($paginated->lastPage()),
+            'next'  => $paginated->nextPageUrl(),
+            'prev'  => $paginated->previousPageUrl(),
+        ]
+    ];
 }

@@ -2,9 +2,11 @@
 
 namespace App\Enums;
 
-enum UserStatus: int
+enum OrderStatus: int
 {
-    const INACTIVE = 0;
-    const ACTIVE = 1;
-    const BANNED = 2;
+    const PENDING = 'pending';
+    const PAID = 'paid';
+    const SHIPPED = 'shipped';
+    const DELIVERED = 'delivered';
+    const CANCELLED = 'cancelled';
 }

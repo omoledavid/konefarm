@@ -45,6 +45,9 @@ class MailTemplateResource extends Resource
                     ->columnSpanFull()
                     ->visible(fn ($livewire) => filled($livewire->record)), // Only show on edit
                 Forms\Components\RichEditor::make('body')
+                    ->fileAttachmentsDisk('public')
+                    ->fileAttachmentsDirectory('attachments')
+                    ->fileAttachmentsVisibility('public')
                     ->required()
                     ->columnSpanFull(),
             ]);

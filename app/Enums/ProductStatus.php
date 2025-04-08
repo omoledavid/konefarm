@@ -2,9 +2,9 @@
 
 namespace App\Enums;
 
-enum Status: int
+enum ProductStatus: string
 {
-    const INACTIVE = 0;
-    const ACTIVE = 1;
-    const BANNED = 2;
+    const INACTIVE = 'inactive';
+    const ACTIVE = 'active';
+    const REJECTED = 'rejected';
 }

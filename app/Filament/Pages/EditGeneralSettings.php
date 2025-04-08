@@ -39,11 +39,16 @@ class EditGeneralSettings extends Page implements HasForms
                         ->label('Site Email')
                         ->email()
                         ->required(),
+                    Forms\Components\Toggle::make('auto_approve')
+                    ->label('Product Auto Approve'),
+                    Forms\Components\Toggle::make('ev')
+                    ->label('Email Verification'),
                     Forms\Components\ViewField::make('global_shortcodes')
                         ->label('Global Shortcodes')
                         ->view('forms.components.global-shortcodes')
                         ->columnSpanFull(),
-                    Forms\Components\RichEditor::make('email_template')
+                    Forms\Components\Textarea::make('email_template')
+                        ->rows(15)
                         ->label('Email Template')
                         ->columnSpanFull()
                 ])
