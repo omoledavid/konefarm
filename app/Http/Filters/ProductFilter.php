@@ -51,8 +51,14 @@ class ProductFilter extends QueryFilter
         }
         return $this->builder->whereDate('updated_at', $value);
     }
-    protected function paginate($value)
+    protected function min($value)
     {
-        $this->builder->paginate($value);
+        $this->builder->where('price', '>=', $value);
     }
+
+    protected function max($value)
+    {
+        $this->builder->where('price', '<=', $value);
+    }
+
 }
