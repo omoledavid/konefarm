@@ -198,7 +198,7 @@ class AuthController extends Controller
         if ($user->ver_code == $request->code) {
             $user->email_verified_at = now();
             $user->ver_code = null;
-            $user->status = UserStatus::ACTIVE->value;
+            $user->status = UserStatus::ACTIVE;
             $user->save();
             return $this->ok('Email verified successfully', new UserResource($user));
         }
