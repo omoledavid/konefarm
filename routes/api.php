@@ -6,9 +6,12 @@ use App\Http\Controllers\BuyOrderController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ProductReviewController;
+use App\Http\Controllers\SellerReviewController;
 use App\Http\Controllers\SellersProductController;
 use App\Http\Controllers\UserAddressController;
 use App\Http\Controllers\UserProfileController;
+use App\Http\Controllers\WishListController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -45,6 +48,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::post('profile', 'updateProfile')->name('profile.update');
             Route::get('toggle', 'toggleUser')->name('user.toggle');
         });
+        Route::post('review-seller/{sellerId}',[SellerReviewController::class,'store']);
+        Route::delete('review-seller/{id}',[SellerReviewController::class,'destroy']);
+        Route::post('review-product/{productId}', [ProductReviewController::class,'store']);
+        Route::delete('review-product/{id}', [ProductReviewController::class,'destroy']);
     });
 
     //Buyers
@@ -52,6 +59,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('clear-cart', [CartController::class, 'clearCart']);
         Route::apiResource('cart', CartController::class);
         Route::apiResource('address', UserAddressController::class);
+        Route::apiResource('wishlist', WishlistController::class);
         Route::controller(OrderController::class)->group(function () {
             Route::post('checkout', 'checkout')->name('checkout');
         });

@@ -31,7 +31,8 @@ class ProductResource extends JsonResource
                 'created_at' => $this->created_at->toDateTimeString(),
             ],
             'includes' => [
-                'seller' => new UserResource($this->whenLoaded('seller'))
+                'seller' => new UserResource($this->whenLoaded('seller')),
+                'images' => productImageResource::collection($this->whenLoaded('images')),
             ]
         ];
     }

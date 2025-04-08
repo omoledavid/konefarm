@@ -19,6 +19,10 @@ class ProductFilter extends QueryFilter
     {
         return $this->builder->where('user_id', $value);
     }
+    public function category($value)
+    {
+        return $this->builder->where('category_id', $value);
+    }
     public function id($value)
     {
         return $this->builder->whereIn('id', explode(',', $value));

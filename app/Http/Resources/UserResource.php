@@ -30,6 +30,7 @@ class UserResource extends JsonResource
                 'bio' => $this->bio,
                 'profile_photo' => $this->profile_photo ? url(getFilePath('user_profile').'/'.$this->profile_photo) : null,
                 'farm_name' => $this->farm_name,
+                'delivery_fee' => $this?->delivery_fee,
                 'avg_delivery_rating' => $this->avg_delivery_rating,
                 'avg_quality_rating' => $this->avg_quality_rating,
                 'total_reviews' => $this->total_reviews,
@@ -37,6 +38,7 @@ class UserResource extends JsonResource
             ],
             'includes' => [
                 'products' => ProductResource::collection($this->whenLoaded('products')),
+                'reviews_got' => SellerReviewResource::collection($this->whenLoaded('sellerReviews')),
             ]
         ];
     }

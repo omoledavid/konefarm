@@ -6,6 +6,7 @@ use App\Http\Filters\QueryFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -60,5 +61,13 @@ class Product extends Model
     public function category()
     {
         return $this->belongsTo(ProductCategory::class, 'category_id');
+    }
+    public function images(): HasMany
+    {
+        return $this->hasMany(ProductImage::class);
+    }
+    public function reviews()
+    {
+        return $this->hasMany(ProductReview::class);
     }
 }

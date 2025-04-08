@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ProductStatus;
+use App\Http\Filters\ProductFilter;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
+use App\Models\ProductImage;
 use App\Traits\ApiResponses;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class SellersProductController extends Controller
@@ -15,10 +18,10 @@ class SellersProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(ProductFilter $filter)
     {
         $user = auth()->user();
-        $products = Product::query()->where('user_id', $user->id)->get();
+        $products = Product::query()->where('user_id', $user->id)->filter($filter)->latest()->get();
         return $this->ok('data retrieved', ['products' => ProductResource::collection($products)]);
 
     }
@@ -37,24 +40,44 @@ class SellersProductController extends Controller
             'measurement' => 'nullable|string',
             'category_id' => 'required|exists:product_categories,id',
             'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg|max:2048' // For multiple images
         ]);
+
         $validatedData['slug'] = Str::slug($request->name . '-' . Str::random(5));
         $validatedData['user_id'] = auth()->id();
+
+        // Handle thumbnail
         $validatedData['thumbnail'] = null;
         if ($request->hasFile('thumbnail')) {
             $location = getFilePath('products');
             $path = fileUploader($request->thumbnail, $location);
             $validatedData['thumbnail'] = $path;
         }
+
+        // Auto approve logic
         $autoApprove = gs('auto_approve');
-        if($autoApprove){
-            $validatedData['status'] = ProductStatus::ACTIVE;
-        }else{
-            $validatedData['status'] = ProductStatus::INACTIVE;
-        }
+        $validatedData['status'] = $autoApprove ? ProductStatus::ACTIVE : ProductStatus::INACTIVE;
+
+        // Create Product
         $product = Product::query()->create($validatedData);
-        return $this->ok('product created', ['product' => new ProductResource($product)]);
+
+        // Handle product images
+        if ($request->hasFile('images')) {
+            $location = getFilePath('products'); // Assuming same path for product gallery images
+            foreach ($request->file('images') as $image) {
+                $imagePath = fileUploader($image, $location);
+
+                $product->images()->create([
+                    'image' => $imagePath
+                ]);
+            }
+        }
+
+        return $this->ok('product created', [
+            'product' => new ProductResource($product)
+        ]);
     }
+
 
     /**
      * Display the specified resource.
@@ -86,6 +109,7 @@ class SellersProductController extends Controller
             'measurement' => 'nullable|string',
             'category_id' => 'nullable|exists:product_categories,id',
             'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
         ]);
         if ($request->hasFile('thumbnail')) {
             $location = getFilePath('products');
@@ -93,6 +117,17 @@ class SellersProductController extends Controller
             $validatedData['thumbnail'] = $path;
         }
         $product->update($validatedData);
+        // Handle product images
+        if ($request->hasFile('images')) {
+            $location = getFilePath('products'); // Assuming same path for product gallery images
+            foreach ($request->file('images') as $image) {
+                $imagePath = fileUploader($image, $location);
+
+                $product->images()->create([
+                    'image' => $imagePath
+                ]);
+            }
+        }
         return $this->ok('product updated', ['product' => new ProductResource($product)]);
     }
 
