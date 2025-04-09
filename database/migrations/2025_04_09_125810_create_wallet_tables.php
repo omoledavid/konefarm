@@ -2,10 +2,9 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class CreateUserWalletTables extends Migration
 {
     /**
      * Run the migrations.
@@ -65,22 +64,9 @@ return new class extends Migration
     {
         $transactionModelClass = config('wallet.transaction_model');
         $transactionTable = (new $transactionModelClass())->getTable();
-
-        // First, drop the foreign key (if it exists)
-        Schema::table($transactionTable, function (Blueprint $table) {
-            if (Schema::hasColumn($table->getTable(), 'wallet_id')) {
-                // Use raw SQL to drop the foreign key safely
-                DB::statement('ALTER TABLE `' . $table->getTable() . '` DROP FOREIGN KEY IF EXISTS `wallet_transactions_wallet_id_foreign`');
-            }
-        });
-
-        // Now drop the transaction table
         Schema::dropIfExists($transactionTable);
-
-        $walletModelClass = config('wallet.wallet_model');
+        $walletModelClass = config('wallet.transaction_model');
         $walletTable = (new $walletModelClass())->getTable();
-
         Schema::dropIfExists($walletTable);
     }
-
-};
+}
