@@ -62,6 +62,7 @@ return new class extends Migration
      */
     public function down()
     {
+        Schema::disableForeignKeyConstraints();
         $transactionModelClass = config('wallet.transaction_model');
         $transactionTable = (new $transactionModelClass())->getTable();
         Schema::dropIfExists($transactionTable);
@@ -69,6 +70,7 @@ return new class extends Migration
         $walletModelClass = config('wallet.wallet_model'); // FIXED HERE
         $walletTable = (new $walletModelClass())->getTable();
         Schema::dropIfExists($walletTable);
+        Schema::enableForeignKeyConstraints();
     }
 
 };
