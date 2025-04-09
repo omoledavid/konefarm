@@ -62,28 +62,11 @@ class CreateUserWalletTables extends Migration
      */
     public function down()
     {
-        $transactionModelClass = config('wallet.transaction_model');
-        $transactionTable = (new $transactionModelClass())->getTable();
-
-        if (Schema::hasTable($transactionTable)) {
-            Schema::table($transactionTable, function (Blueprint $table) {
-                // Check if foreign key exists before dropping
-                $sm = Schema::getConnection()->getDoctrineSchemaManager();
-                $foreignKeys = $sm->listTableForeignKeys($table->getTable());
-                foreach ($foreignKeys as $fk) {
-                    if ($fk->getLocalColumns() === ['wallet_id']) {
-                        $table->dropForeign(['wallet_id']);
-                    }
-                }
-            });
-
-            Schema::dropIfExists($transactionTable);
-        }
-
+//        $transactionModelClass = config('wallet.transaction_model');
+//        $transactionTable = (new $transactionModelClass())->getTable();
+//        Schema::dropIfExists($transactionTable);
         $walletModelClass = config('wallet.wallet_model');
         $walletTable = (new $walletModelClass())->getTable();
-
         Schema::dropIfExists($walletTable);
     }
-
 }
