@@ -65,7 +65,7 @@ class CreateUserWalletTables extends Migration
         $transactionModelClass = config('wallet.transaction_model');
         $transactionTable = (new $transactionModelClass())->getTable();
         Schema::dropIfExists($transactionTable);
-        $walletModelClass = config('wallet.transaction_model');
+        $walletModelClass = config('wallet.wallet_model');
         $walletTable = (new $walletModelClass())->getTable();
         Schema::dropIfExists($walletTable);
     }
