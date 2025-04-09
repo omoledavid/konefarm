@@ -36,10 +36,8 @@ class UserResource extends JsonResource
                 'total_reviews' => $this->total_reviews,
                 'created_at' => $this->created_at->toDateTimeString(),
             ],
-            'includes' => [
                 'products' => ProductResource::collection($this->whenLoaded('products')),
                 'reviews_got' => SellerReviewResource::collection($this->whenLoaded('sellerReviews')),
-            ]
         ];
     }
 }
