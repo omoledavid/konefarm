@@ -26,6 +26,7 @@ class CartController extends Controller
      */
     public function store(Request $request)
     {
+        $user = auth()->user();
         $request->validate([
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:1'
@@ -35,6 +36,10 @@ class CartController extends Controller
         if(!$product)
         {
             return $this->error('product not found', 404);
+        }
+        if($user->is_seller)
+        {
+            return $this->error('switch to a buyer\'s account to purchase this product', 403);
         }
         // Check if requested quantity exceeds available stock
         if ($request->quantity > $product->stock_quantity) {

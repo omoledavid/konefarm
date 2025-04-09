@@ -11,4 +11,8 @@ class UserFilter extends QueryFilter
 
         return $this->builder->with($includes);
     }
+    public function id($value)
+    {
+        return $this->builder->where('id', $value);
+    }
 }

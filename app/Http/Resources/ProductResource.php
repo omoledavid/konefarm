@@ -32,7 +32,8 @@ class ProductResource extends JsonResource
             ],
             'seller' => new UserResource($this->whenLoaded('seller')),
             'images' => ProductImageResource::collection($this->whenLoaded('images')),
-            'reviews' => ProductReviewResource::collection($this->whenLoaded('reviews'))
+            'reviews' => ProductReviewResource::collection($this->whenLoaded('reviews')),
+            'related_products' => ProductResource::collection($this->whenLoaded('relatedProducts'))
         ];
     }
 }

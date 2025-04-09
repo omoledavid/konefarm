@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\OrderStatus;
 use App\Http\Resources\OrderResource;
 use App\Models\Cart;
 use App\Models\Order;
@@ -51,7 +52,7 @@ class OrderController extends Controller
                     'user_address_id' => $userAddress->id,
                     'reference' => $reference,
                     'total_amount' => 0,  // Will update after order items are added
-                    'status' => 'pending',
+                    'status' => OrderStatus::PENDING,
                     'callback_url' => $request->callback_url ?? null
                 ]);
 
@@ -140,18 +141,69 @@ class OrderController extends Controller
         }
 
         // Update order status
-        $order->status = 'paid';
+        $order->status = OrderStatus::PAID;
         $order->save();
         $callbackURL = $order->callback_url;
+        $buyer = $order->user;
+        notify($buyer, 'user_order_confirmation', [
+            'user_name' => $buyer->name,
+            'order_id' => $order->reference,
+            'order_total' => $order->total_amount,
+            'site_name' => 'Kone Farms'
+        ]);
 
         // Reduce product stock
         foreach ($order->items as $item) {
             $product = $item->product;
             $product->stock_quantity -= $item->quantity;
             $product->save();
+            //pay seller
+            $item->seller->wallet->deposit($item->total,['description' => "Payment for order #$order->reference"]);
+            $seller = $item->seller;
+            notify($seller, 'seller_order_notification', [
+                'seller_name' => $seller->name,
+                'order_id' => $item->order->reference,
+                'buyer_name' => $buyer->name,
+            ]);
         }
 
         return redirect()->away($callbackURL ?? env('FRONTEND_URL'));
+    }
+    public function repay($id)
+    {
+        $order = Order::query()->where('id', $id)->where('user_id', auth()->id())->first();
+        if (!$order) {
+            return $this->error('You\'re not authorize to make this payment', 400);
+        }
+        if ($order->status->value !== OrderStatus::PENDING->value) {
+            return $this->error('This order has been paid for', 400);
+        }
+        if ($order->status->value === OrderStatus::CANCELLED->value) {
+            return $this->error('This order has been cancelled', 400);
+        }
+        $reference = 'ORD-' . strtoupper(Str::random(10));
+        // Initialize Paystack payment
+        $paystackData = [
+            'amount' => $order->total_amount * 100, // in kobo
+            'email' => $order->user->email,
+            'reference' => $reference,
+            'callback_url' => url('/api/order/verify/' . $reference),
+        ];
+
+        $paystack = Http::withToken(env('PAYSTACK_SECRET_KEY'))
+            ->post('https://api.paystack.co/transaction/initialize', $paystackData);
+
+        if (!$paystack->successful()) {
+            return $this->error('payment unsuccessful '.$paystack->json()['message'] ?? 'Something went wrong', 500);
+        }
+        $order->update([
+            'reference' => $reference,
+        ]);
+        return $this->ok('payment link generated successfully', [
+            'reference' => $reference,
+            'order' => new OrderResource($order),
+            'payment_url' => $paystack['data']['authorization_url']
+        ]);
     }
 
 

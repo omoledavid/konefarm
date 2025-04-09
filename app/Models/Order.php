@@ -22,6 +22,9 @@ class Order extends Model
     public function items() {
         return $this->hasMany(OrderItem::class);
     }
+    public function user() {
+        return $this->belongsTo(User::class);
+    }
     public function buyerAddress(): BelongsTo
     {
         return $this->belongsTo(UserAddress::class, 'user_address_id');

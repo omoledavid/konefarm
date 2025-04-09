@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "11eb47fdb3d92dd0e1195ec4eb284266",
+    "content-hash": "28a750450e6dda8af185566c9b6227e5",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -3356,6 +3356,81 @@
                 }
             ],
             "time": "2025-03-12T20:24:15+00:00"
+        },
+        {
+            "name": "mannikj/laravel-wallet",
+            "version": "v11.2.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/MannikJ/laravel-wallet.git",
+                "reference": "c5809dbe207bb77cb6e1fa7116c611cf33178699"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/MannikJ/laravel-wallet/zipball/c5809dbe207bb77cb6e1fa7116c611cf33178699",
+                "reference": "c5809dbe207bb77cb6e1fa7116c611cf33178699",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.2"
+            },
+            "require-dev": {
+                "doctrine/dbal": "^4.0",
+                "larastan/larastan": "^2.9",
+                "laravel/pint": "^1.16",
+                "orchestra/testbench": "^9.1",
+                "phpunit/phpunit": "^11.1"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "Wallet": "MannikJ\\Laravel\\Wallet\\Facades\\WalletFacade"
+                    },
+                    "providers": [
+                        "MannikJ\\Laravel\\Wallet\\WalletServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "MannikJ\\Laravel\\Wallet\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jannik Malken",
+                    "email": "mannikj@web.de",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Simon Depelchin",
+                    "email": "simon@webartisan.be",
+                    "homepage": "https://webartisan.be",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Easy to use virtual wallet for your app",
+            "homepage": "https://github.com/mannikj/laravel-wallet",
+            "keywords": [
+                "credits",
+                "currency",
+                "depsimon",
+                "laravel-wallet",
+                "mannikj",
+                "payment",
+                "virtual",
+                "wallet"
+            ],
+            "support": {
+                "issues": "https://github.com/MannikJ/laravel-wallet/issues",
+                "source": "https://github.com/MannikJ/laravel-wallet/tree/v11.2.1"
+            },
+            "time": "2025-03-31T14:40:16+00:00"
         },
         {
             "name": "masterminds/html5",

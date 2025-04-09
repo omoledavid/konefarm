@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ProductStatus;
 use App\Http\Filters\QueryFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -27,7 +28,7 @@ class Product extends Model
         'status',
     ];
     protected $casts = [
-        'price' => 'decimal:2',
+        'price' => 'double',
     ];
     public function scopeFilter(Builder $builder, QueryFilter $filters)
     {
@@ -77,5 +78,13 @@ class Product extends Model
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);
+    }
+    public function relatedProducts()
+    {
+        return $this->hasMany(self::class, 'category_id', 'category_id')
+            ->where('id', '!=', $this->id)
+            ->where('status', ProductStatus::ACTIVE)
+            ->latest()
+            ->take(6);
     }
 }

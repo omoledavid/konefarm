@@ -42,6 +42,7 @@ class UserFactory extends Factory
             'farm_name' => $isSeller ? $this->faker->company . ' Farms' : null,
             'is_seller' => $isSeller,
             'is_buyer' => true,
+            'status' => $this->faker->numberBetween(0, 1),
             'avg_delivery_rating' => $isSeller ? $this->faker->randomFloat(1, 3, 5) : 0,
             'avg_quality_rating' => $isSeller ? $this->faker->randomFloat(1, 3, 5) : 0,
             'total_reviews' => $isSeller ? $this->faker->numberBetween(0, 50) : 0,

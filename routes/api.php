@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\BankAccountController;
 use App\Http\Controllers\BuyerController;
 use App\Http\Controllers\BuyOrderController;
 use App\Http\Controllers\CartController;
@@ -41,6 +42,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     //Sellers
     Route::prefix('sellers')->group(function () {
         Route::apiResource('product', SellersProductController::class);
+        Route::apiResource('bank', BankAccountController::class);
         Route::get('orders', [SellerOrderController::class, 'index']);
         Route::post('orders/{order}', [SellerOrderController::class, 'changeStatus']);
     });
@@ -66,14 +68,19 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::apiResource('wishlist', WishlistController::class);
         Route::controller(OrderController::class)->group(function () {
             Route::post('checkout', 'checkout')->name('checkout');
+            Route::post('checkout-repay/{id}', 'repay')->name('checkout.repay');
         });
         Route::get('orders', [BuyerController::class, 'getOrders'])->name('seller.orders');
     });
 });
+//General
 Route::controller(GeneralController::class)->group(function () {
     Route::prefix('generals')->group(function () {
         Route::get('product-categories', 'productCategories');
         Route::get('products', 'allProducts');
+        Route::get('users', 'users');
+        Route::get('banks', 'banks');
+        Route::post('verify-account-number', 'verifyAccountNumber');
     });
 });
 Route::get('order/verify/{reference}', [OrderController::class, 'verify']);
