@@ -11,6 +11,7 @@ use App\Traits\ApiResponses;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class OrderController extends Controller
@@ -26,92 +27,95 @@ class OrderController extends Controller
 
         $user = auth()->user();
         $cartItems = Cart::with('product')->where('user_id', $user->id)->get();
+//        dd($cartItems);
 
         if ($cartItems->isEmpty()) {
             return $this->error('Cart is empty');
         }
 
         // Get the selected address
-        $userAddress = UserAddress::find($request->user_address_id);
+        $userAddress = UserAddress::query()->where('id',$request->user_address_id)->first();
         if (!$userAddress) {
             return $this->error('Address not found', 404);
         }
 
-        DB::beginTransaction();
 
         try {
-            $total = 0;
-            $reference = 'ORD-' . strtoupper(Str::random(10));
+            $result = DB::transaction(function () use ($request, $user, $userAddress, $cartItems) {
+                $total = 0;
+                $reference = 'ORD-' . strtoupper(Str::random(10));
 
-            // Create Order with the buyer's address and total amount
-            $order = Order::create([
-                'user_id' => $user->id,
-                'user_address_id' => $userAddress->id,
-                'reference' => $reference,
-                'total_amount' => 0,  // Will update after order items are added
-                'status' => 'pending',
-                'callback_url' => $request->callback_url ?? null
-            ]);
-
-            // Process each item, split by seller
-            $totalAmount = 0;
-            foreach ($cartItems as $item) {
-                // Calculate delivery fee for this item (you can adjust based on seller location or other factors)
-                $deliveryFee = $item->product->seller->delivery_fee ?? 0; // Assuming sellers have a delivery_fee field
-
-                // Add product total price and delivery fee
-                $itemTotal = $item->total_price + $deliveryFee;
-
-                // Add order item to database
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'product_id' => $item->product_id,
-                    'seller_id' => $item->product->user_id, // Seller ID
-                    'quantity' => $item->quantity,
-                    'price' => $item->unit_price,
-                    'total' => $itemTotal,
-                    'delivery_fee' => $deliveryFee // Save delivery fee per item
+                // Create Order with the buyer's address and total amount
+                $order = Order::create([
+                    'user_id' => $user->id,
+                    'user_address_id' => $userAddress->id,
+                    'reference' => $reference,
+                    'total_amount' => 0,  // Will update after order items are added
+                    'status' => 'pending',
+                    'callback_url' => $request->callback_url ?? null
                 ]);
 
-                // Update the overall order total
-                $totalAmount += $itemTotal;
-            }
+                // Process each item, split by seller
+                $totalAmount = 0;
+                foreach ($cartItems as $item) {
+                    // Calculate delivery fee for this item (you can adjust based on seller location or other factors)
+                    $deliveryFee = $item->product->seller->delivery_fee ?? 0; // Assuming sellers have a delivery_fee field
 
-            // Update the total order amount with calculated item totals and delivery fees
-            $order->update([
-                'total_amount' => $totalAmount
-            ]);
+                    // Add product total price and delivery fee
+                    $itemTotal = $item->total_price + $deliveryFee;
 
-            // Initialize Paystack payment
-            $paystackData = [
-                'amount' => $totalAmount * 100, // in kobo
-                'email' => $user->email,
-                'reference' => $reference,
-                'callback_url' => url('/api/order/verify/' . $reference),
-            ];
+                    // Add order item to database
+                    OrderItem::create([
+                        'order_id' => $order->id,
+                        'product_id' => $item->product_id,
+                        'seller_id' => $item->product->user_id, // Seller ID
+                        'quantity' => $item->quantity,
+                        'price' => $item->unit_price,
+                        'total' => $itemTotal,
+                        'delivery_fee' => $deliveryFee // Save delivery fee per item
+                    ]);
 
-            $paystack = Http::withToken(env('PAYSTACK_SECRET_KEY'))
-                ->post('https://api.paystack.co/transaction/initialize', $paystackData);
+                    // Update the overall order total
+                    $totalAmount += $itemTotal;
+                }
 
-            if (!$paystack->successful()) {
-                DB::rollBack();
-                return $this->error($paystack->json()['message'] ?? 'Something went wrong', 500);
-            }
+                // Update the total order amount with calculated item totals and delivery fees
+                $order->update([
+                    'total_amount' => $totalAmount
+                ]);
 
-            // Clear the cart after successful order creation
-            Cart::where('user_id', $user->id)->delete();
+                // Initialize Paystack payment
+                $paystackData = [
+                    'amount' => $totalAmount * 100, // in kobo
+                    'email' => $user->email,
+                    'reference' => $reference,
+                    'callback_url' => url('/api/order/verify/' . $reference),
+                ];
 
-            DB::commit();
+                $paystack = Http::withToken(env('PAYSTACK_SECRET_KEY'))
+                    ->post('https://api.paystack.co/transaction/initialize', $paystackData);
 
-            return $this->success($paystack->json()['message'] ?? 'Order placed successfully', [
-                'reference' => $reference,
-                'order' => new OrderResource($order),
-                'payment_url' => $paystack['data']['authorization_url']
-            ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return $this->error($e->getMessage() ?? 'Something went wrong', 500);
+                if (!$paystack->successful()) {
+                    DB::rollBack();
+                    return $this->error('payment unsuccessful '.$paystack->json()['message'] ?? 'Something went wrong', 500);
+                }
+
+                // Clear the cart after successful order creation
+                Cart::where('user_id', $user->id)->delete();
+
+                // return final data
+                return [
+                    'reference' => $reference,
+                    'order' => new OrderResource($order),
+                    'payment_url' => $paystack['data']['authorization_url']
+                ];
+            });
+            return $this->ok('Order placed successfully', $result);
+        } catch (\Throwable $e) {
+            Log::error('Checkout Error: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return $this->error('Checkout unsuccessful: '.$e->getMessage(), 500);
         }
+
     }
 
     public function verify($reference)
@@ -125,8 +129,7 @@ class OrderController extends Controller
         }
 
         $order = Order::where('reference', $reference)->first();
-        if($order == null)
-        {
+        if ($order == null) {
 //            return $this->error('Order not found');
             return redirect()->away($callbackURL ?? env('FRONTEND_URL'));
         }

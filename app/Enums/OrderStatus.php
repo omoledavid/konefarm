@@ -2,11 +2,12 @@
 
 namespace App\Enums;
 
-enum OrderStatus: int
+enum OrderStatus: string
 {
-    const PENDING = 'pending';
-    const PAID = 'paid';
-    const SHIPPED = 'shipped';
-    const DELIVERED = 'delivered';
-    const CANCELLED = 'cancelled';
+    case PENDING = 'pending';
+    case PAID = 'paid';
+    case PROCESSING = 'processing';
+    case SHIPPED = 'shipped';
+    case DELIVERED = 'delivered';
+    case CANCELLED = 'cancelled';
 }

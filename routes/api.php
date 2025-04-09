@@ -7,6 +7,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductReviewController;
+use App\Http\Controllers\SellerOrderController;
 use App\Http\Controllers\SellerReviewController;
 use App\Http\Controllers\SellersProductController;
 use App\Http\Controllers\UserAddressController;
@@ -37,8 +38,11 @@ Route::prefix('auth')->group(function () {
     });
 });
 Route::middleware(['auth:sanctum'])->group(function () {
+    //Sellers
     Route::prefix('sellers')->group(function () {
         Route::apiResource('product', SellersProductController::class);
+        Route::get('orders', [SellerOrderController::class, 'index']);
+        Route::post('orders/{order}', [SellerOrderController::class, 'changeStatus']);
     });
 
     //User

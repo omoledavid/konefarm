@@ -17,8 +17,8 @@ return new class extends Migration
             $table->foreignId('user_address_id')->constrained('users')->onDelete('cascade');
             $table->string('reference')->unique(); // for Paystack
             $table->decimal('total_amount', 10, 2);
-            $table->decimal('delivery_fee', 12, 2);
-            $table->enum('status', ['pending', 'paid', 'shipped', 'delivered', 'cancelled'])->default('pending');
+            $table->decimal('delivery_fee', 12, 2)->default(0.00);
+            $table->enum('status', ['pending', 'paid','processing', 'shipped', 'delivered', 'cancelled'])->default('pending');
             $table->string('callback_url')->nullable();
             $table->timestamps();
         });

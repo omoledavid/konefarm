@@ -23,8 +23,8 @@ class OrderItemResource extends JsonResource
                 'total' => $this->total,
                 'created_at' => $this->created_at->toDateTimeString(),
             ],
-            'seller' => new UserResource($this->product->seller),
-            'includes' => new ProductResource($this->product)
+            'seller' => new UserResource($this->whenLoaded('seller')),
+            'product' => new ProductResource($this->whenLoaded('product'))
         ];
     }
 }

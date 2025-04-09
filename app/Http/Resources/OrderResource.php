@@ -24,10 +24,8 @@ class OrderResource extends JsonResource
                 'status' => $this->status,
                 'created_at' => $this->created_at->toDateTimeString(),
             ],
-            'includes' => [
-                'items' => OrderItemResource::collection($this->whenLoaded('items')),
-                'buyer_address' => UserAddressResource::collection($this->buyerAddress),
-            ]
+            'items' => OrderItemResource::collection($this->whenLoaded('items')),
+            'buyer_address' => new UserAddressResource($this->whenLoaded('buyerAddress')),
         ];
     }
 }

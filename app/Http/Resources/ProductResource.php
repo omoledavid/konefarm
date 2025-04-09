@@ -26,15 +26,13 @@ class ProductResource extends JsonResource
                 'stock_quantity' => $this->stock_quantity,
                 'unit' => $this->unit,
                 'measurement' => $this->measurement,
-                'thumbnail' => $this->thumbnail ? url(getFilePath('products').'/'.$this->thumbnail) : null,
+                'thumbnail' => $this->thumbnail ? url(getFilePath('products') . '/' . $this->thumbnail) : null,
                 'status' => $this->status,
                 'created_at' => $this->created_at->toDateTimeString(),
             ],
-            'includes' => [
-                'seller' => new UserResource($this->whenLoaded('seller')),
-                'images' => ProductImageResource::collection($this->whenLoaded('images')),
-                'reviews' => ProductReviewResource::collection($this->whenLoaded('reviews')),
-            ]
+            'seller' => new UserResource($this->whenLoaded('seller')),
+            'images' => ProductImageResource::collection($this->whenLoaded('images')),
+            'reviews' => ProductReviewResource::collection($this->whenLoaded('reviews'))
         ];
     }
 }
