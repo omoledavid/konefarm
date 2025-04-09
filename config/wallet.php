@@ -1,7 +1,7 @@
 <?php
 
+use App\Models\Wallet;
 use MannikJ\Laravel\Wallet\Models\Transaction;
-use MannikJ\Laravel\Wallet\Models\Wallet;
 
 return [
     /*
