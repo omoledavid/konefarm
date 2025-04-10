@@ -16,10 +16,10 @@ class FileInfo {
 
     public function fileInfo() {
         $data['products'] = [
-            'path' => 'assets/images/products'
+            'path' => 'images/products'
         ];
         $data['user_profile'] = [
-            'path' => 'assets/images/users/profile'
+            'path' => 'images/users/profile'
         ];
         return $data;
     }

@@ -115,14 +115,7 @@ function getFilePath($key)
 }
 function fileUploader($file, $location, $size = null, $old = null, $thumb = null, $filename = null)
 {
-    $fileManager = new FileManager($file);
-    $fileManager->path = $location;
-    $fileManager->size = $size;
-    $fileManager->old = $old;
-    $fileManager->thumb = $thumb;
-    $fileManager->filename = $filename;
-    $fileManager->upload();
-    return $fileManager->filename;
+    return $file->store($location, 'public');
 }
 function rssPaginate($paginated)
 {

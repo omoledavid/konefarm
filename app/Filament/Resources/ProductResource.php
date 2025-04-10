@@ -59,8 +59,8 @@ class ProductResource extends Resource
                 Forms\Components\TextInput::make('category_id')
                     ->required()
                     ->numeric(),
-                Forms\Components\TextInput::make('thumbnail')
-                    ->maxLength(191),
+                Forms\Components\FileUpload::make('thumbnail')
+                ->directory(getFilePath('products')),
                 Forms\Components\TextInput::make('status')
                     ->required(),
             ]);
@@ -76,7 +76,7 @@ class ProductResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(),
                 Tables\Columns\TextColumn::make('price')
-                    ->money()
+                    ->money('NGN')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('stock_quantity')
                     ->numeric()
@@ -92,8 +92,7 @@ class ProductResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\ImageColumn::make('thumbnail')
-                    ->searchable(),
+                Tables\Columns\ImageColumn::make('thumbnail'),
                 Tables\Columns\TextColumn::make('status'),
                 Tables\Columns\TextColumn::make('deleted_at')
                     ->dateTime()
