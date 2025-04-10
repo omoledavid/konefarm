@@ -26,7 +26,7 @@ class ProductResource extends JsonResource
                 'stock_quantity' => $this->stock_quantity,
                 'unit' => $this->unit,
                 'measurement' => $this->measurement,
-                'thumbnail' => $this->thumbnail ? url($this->thumbnail) : null,
+                'thumbnail' => $this->thumbnail ? url('storage/'.$this->thumbnail) : null,
                 'status' => $this->status,
                 'created_at' => $this->created_at->toDateTimeString(),
             ],
