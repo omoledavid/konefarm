@@ -71,7 +71,7 @@ class ProductResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
+                    ->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('slug')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(),
@@ -106,7 +106,7 @@ class ProductResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-            ])
+            ])->defaultSort('created_at', 'desc')
             ->filters([
 //                Tables\Filters\TrashedFilter::make(),
             ])
