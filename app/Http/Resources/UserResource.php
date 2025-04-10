@@ -29,7 +29,7 @@ class UserResource extends JsonResource
                 'city' => $this->city,
                 'country' => $this->country,
                 'bio' => $this->bio,
-                'profile_photo' => $this->profile_photo ? url(getFilePath('user_profile').'/'.$this->profile_photo) : null,
+                'profile_photo' => $this->profile_photo ? url('storage/'.$this->profile_photo) : null,
                 'farm_name' => $this->farm_name,
                 'delivery_fee' => $this?->delivery_fee,
                 'avg_delivery_rating' => $this->avg_delivery_rating,

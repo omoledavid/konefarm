@@ -18,7 +18,7 @@ class ProductImageResource extends JsonResource
             'type' => 'image',
             'id' => $this->id,
             'attributes' => [
-                'image' => $this->image ? url(getFilePath('products').'/'.$this->image) : null,
+                'image' => $this->image ? url('storage/'.$this->image) : null,
             ]
         ];
     }
